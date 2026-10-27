@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>TikTok Sign-in · HouseWatch PH</title>
+  <link rel="icon" href="icon.png">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .code { font-family: ui-monospace, Menlo, monospace; font-size: 15px; word-break: break-all;
+            background: var(--panel); border-radius: 10px; padding: 14px 16px; margin: 12px 0; }
+    .err { color: var(--red); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <a class="brand" href="index.html"><img src="wordmark.png" alt="HouseWatch PH"></a>
+    </div>
+  </header>
+  <main>
+    <h1>TikTok sign-in</h1>
+    <!-- TikTok sends the owner back here after they approve HouseWatch Pipeline. The page only shows the
+         one-time code so it can be pasted into the pipeline on the owner's computer. Nothing is stored or sent. -->
+    <div id="ok" hidden>
+      <p>Copy this code and paste it into the terminal where <code>hw tiktok-auth</code> is waiting:</p>
+      <div class="code" id="code"></div>
+      <a class="button" href="#" id="copy">Copy code</a>
+      <p class="updated">The code works once and expires in a few minutes. You can close this page afterwards.</p>
+    </div>
+    <div id="fail" hidden>
+      <p class="err">TikTok didn't return a code: <span id="reason"></span></p>
+      <p>Go back to the terminal and run <code>hw tiktok-auth</code> again.</p>
+    </div>
+    <p id="none">This page is used only by the HouseWatch PH owner to connect their TikTok account.</p>
+  </main>
+  <script>
+    const q = new URLSearchParams(location.search);
+    const code = q.get('code');
+    if (code) {
+      document.getElementById('none').hidden = true;
+      document.getElementById('ok').hidden = false;
+      document.getElementById('code').textContent = code + (q.get('state') ? ' ' + q.get('state') : '');
+      document.getElementById('copy').onclick = (e) => {
+        e.preventDefault();
+        navigator.clipboard.writeText(document.getElementById('code').textContent)
+          .then(() => { e.target.textContent = 'Copied'; });
+      };
+    } else if (q.get('error')) {
+      document.getElementById('none').hidden = true;
+      document.getElementById('fail').hidden = false;
+      document.getElementById('reason').textContent = q.get('error_description') || q.get('error');
+    }
+  </script>
+</body>
+</html>
